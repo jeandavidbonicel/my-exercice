@@ -1,0 +1,5 @@
+export const postConstants = {
+    GET_POST_LIST: 'GET_POST_LIST',
+    GET_COMMENTS_BY_POST_ID: 'GET_COMMENTS_BY_POST_ID',
+    GET_USER_BY_POST: 'GET_USER_BY_POST'
+}

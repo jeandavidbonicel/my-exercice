@@ -1,0 +1,18 @@
+.postItem {
+    max-width: 500px;
+    text-align: left;
+    .card-header {
+        .avatar {
+            background-color: red;
+        }
+    }
+    .card-actions {
+        display: flex;
+    }
+    .expand {
+        transform: rotate(0deg),
+    }
+    .expand-open {
+        transform: rotate(180deg),
+    }
+}
