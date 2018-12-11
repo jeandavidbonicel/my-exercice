@@ -1,0 +1,22 @@
+.comment-input-container {
+    margin: 20px;
+    padding: 10px;
+    border: 1px solid #e2e2e2;
+    border-radius: 5px;
+    .comment-input,
+    .email-input,
+    .title-input {
+        width: 100%;
+    }
+    .input-error {
+        font-weight: bold;
+        color: red;
+    }
+    .send-comment-button {
+        display: flex;
+        margin-left: auto;
+        .send-comment-button-icon {
+            margin-left: 5px;
+        }
+    }
+}

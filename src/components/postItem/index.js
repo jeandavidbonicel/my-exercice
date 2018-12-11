@@ -30,8 +30,7 @@ class PostItem extends Component {
         this.state = {
             user: {},
             comments: {},
-            loadingUser: false,
-            loadingComments: false,
+            loadingUser: true,
             expanded: false
         };
     }
@@ -48,14 +47,7 @@ class PostItem extends Component {
             });
         });
     }
-
-    componentWillMount() {
-        this.setState({
-            loadingComments: true,
-            loadingUser: true,
-        })
-    }
-
+    
     componentDidMount() {
         this.fetchPostItem();
     }

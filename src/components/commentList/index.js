@@ -8,6 +8,7 @@ import { PropTypes } from 'prop-types';
 import './commentList.scss';
 
 import CommentItem from '../commentItem';
+import CommentInput from '../commentInput';
 
 import { getCommentByPostId } from '../../actions/postAction'
 
@@ -27,22 +28,36 @@ const mapDispatchToProps = dispatch => ({
 })
 
 class CommentList extends Component {
+
     constructor() {
         super();
         this.state = {
+            postId: null,
             user: {},
-            comments: {},
-            loadingComments: false,
+            comments: [],
+            commentAdded: [],
+            loadingComments: true,
             expanded: false
         };
     }
+
+    static getDerivedStateFromProps(nextProps, prevState) {
+        if (nextProps.postReducer.commentAdded && nextProps.postReducer.commentAdded.postId && (nextProps.postReducer.commentAdded.postId === prevState.postId)) {
+            return {
+                comments: Object.values(nextProps.postReducer.postList[prevState.postId - 1]['comments']),
+                commentAdded: nextProps.postReducer.commentAdded
+            };
+        }
+        return null;
+    }
+
 
     handleExpandClick = () => {
         this.setState(state => ({ expanded: !state.expanded }));
     };
 
-    fetchCommentList() {
-        this.props.getCommentByPostId(this.props.postId).then((response) => {
+    fetchCommentList(postId) {
+        this.props.getCommentByPostId(postId).then((response) => {
             this.setState({
                 comments: response.value.data,
                 loadingComments: false
@@ -50,25 +65,23 @@ class CommentList extends Component {
         });
     }
 
-    componentWillMount() {
+    componentDidMount() {
         this.setState({
-            loadingComments: true,
+            postId: this.props.postId
+        }, () => {
+            this.fetchCommentList(this.props.postId);
         })
     }
 
-    componentDidMount() {
-        this.fetchCommentList();
-    }
-
     render() {
-        const { comments, loadingComments, expanded } = this.state;
+
+        const { postId, comments, loadingComments, expanded } = this.state;
 
         return (
             <CardContent>
-                <CardActions className="card-actions" disableActionSpacing>
+                <CardActions onClick={this.handleExpandClick} className="card-actions" disableActionSpacing>
                     <IconButton
                         className={expanded ? 'expand-open' : 'expand'}
-                        onClick={this.handleExpandClick}
                         aria-expanded={expanded}
                         aria-label="Show more"
                     >
@@ -76,16 +89,19 @@ class CommentList extends Component {
                     </IconButton>
                     <Typography component="p">
                         comments
-                </Typography>
+                    </Typography>
                 </CardActions>
                 <Collapse in={expanded} timeout="auto" unmountOnExit>
                     <CardContent>
                         {loadingComments && <span>Loading...</span>}
                         {!loadingComments && (
                             <div>
-                                {comments.map((comment) => (
-                                    <CommentItem name={comment.name} body={comment.body} key={comment.id} />
-                                ))}
+                                <div className="comments-content">
+                                    {comments.map((comment) => (
+                                        <CommentItem name={comment.name} body={comment.body} key={comment.id} />
+                                    ))}
+                                </div>
+                                <CommentInput postId={postId} />
                             </div>
                         )}
                     </CardContent>
