@@ -13,6 +13,10 @@ import { addCommentToPost } from '../../actions/postAction'
 
 import './commentInput.scss';
 
+import Suggestions from '../suggestions';
+
+
+
 const mapStateToProps = state => ({
     ...state
 })
@@ -28,7 +32,10 @@ class CommentInput extends Component {
             comment: '',
             title: '',
             email: '',
-            errors: {}
+            errors: {},
+            suggestionWithAt: '',
+            suggestion: '',
+            usersSuggested: {}
         };
     }
 
@@ -82,32 +89,87 @@ class CommentInput extends Component {
         }
     }
 
+    onKeyUp = () => event => {
+        const value = event.target.value;
+        const regSuggestionUser = /@\w+/g;
+        
+        if (regSuggestionUser.test(value)) {
+            const results = value.match(regSuggestionUser);
+            results.map(result => {
+                if (value && (value.endsWith(result) || (value.startsWith(result) && value.endsWith(result)))) {
+                    this.setState({
+                        suggestionWithAt: result,
+                        suggestion: result.substr(1)
+                    }, () => {
+                        this.findUser(this.state.suggestion)
+                    })
+                } else {
+                    this.setState({
+                        suggestionWithAt: '',
+                        suggestion: '',
+                        usersSuggested: {}
+                    })
+                }
+            });
+
+        } else {
+            this.setState({
+                suggestionWithAt: '',
+                suggestion: '',
+                usersSuggested: {}
+            })
+        }
+    }
+
+    findUser(suggestion) {
+        const usersFound = this.props.userReducer.users.filter(element => {
+            return element.username.toLowerCase().startsWith(suggestion.toLowerCase())
+        })
+
+        this.setState({
+            usersSuggested: usersFound
+        });
+    }
+
+    onClickSuggestion(e) {
+        const value = this.state.comment.replace(this.state.suggestionWithAt, `[${e.target.textContent}]`)
+        
+        this.setState({
+            comment: value,
+            suggestionWithAt: '',
+            suggestion: '',
+            usersSuggested: {}
+        })
+    }
+
     render() {
+        const { errors, suggestion, email, title, comment, usersSuggested} = this.state;
+
         return (
             <div className="comment-input-container">
                 <TextField
                     id="outlined-email"
                     label="Add e-mail"
-                    value={this.state.email}
+                    value={email}
                     onChange={this.handleChange('email')}
                     className="email-input"
                     margin="normal"
                     variant="outlined"
                 />  
                 <Typography className="input-error" component="p">
-                    {this.state.errors && this.state.errors['email']}
+                    {errors && errors['email']}
                 </Typography>
                 <TextField
                     id="outlined-title"
                     label="Add title"
-                    value={this.state.title}
+                    value={title}
                     onChange={this.handleChange('title')}
                     className="title-input"
                     margin="normal"
                     variant="outlined"
                 />  
                 <Typography className="input-error" component="p">
-                    {this.state.errors && this.state.errors['title']}
+                    {errors && errors['title']}
                 </Typography>
                 <TextField
                     inputProps={{
@@ -117,16 +179,21 @@ class CommentInput extends Component {
                     label="Add comment"
                     multiline
                     rowsMax="4"
-                    value={this.state.comment}
+                    value={comment}
                     onChange={this.handleChange('comment')}
                     className="comment-input"
                     margin="normal"
                     helperText="120 caracters maximum"
                     variant="outlined"
+                    onKeyUp={this.onKeyUp()}
                 />
                 <Typography className="input-error" component="p">
-                    {this.state.errors && this.state.errors['comment']}
+                    {errors && errors['comment']}
                 </Typography>
+                {
+                    suggestion !== '' && usersSuggested.length > 0 ? 
+                    <Suggestions users={usersSuggested} action={this.onClickSuggestion.bind(this)}/> : ''
+                }
                 <Button variant="contained" color="primary" className="send-comment-button" onClick={this.addComment.bind(this)}>
                     Send
                     <Icon className="send-comment-button-icon">send</Icon>
