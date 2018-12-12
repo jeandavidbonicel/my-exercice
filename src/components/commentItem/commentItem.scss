@@ -3,4 +3,15 @@
     padding: 8px;
     display: flex;
     flex-direction: column;
+    .tag-container {
+        span {
+            border: 1px solid #ddd;
+            background: #eee;
+            font-size: 12px;
+            display: inline-block;
+            padding: 5px;
+            margin: 0 5px;
+            border-radius: 2px;
+        }
+    }
 }

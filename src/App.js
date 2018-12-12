@@ -17,15 +17,28 @@ const mapDispatchToProps = dispatch => ({
 
 class App extends Component {
 
+  constructor(props){
+    super(props)
+    this.state = {
+      selectedUserId: ''
+    }
+  }
+
   componentDidMount() {
     this.props.getUsers();
+  }
+
+  selectedUser(userId = '') {
+    this.setState({
+      selectedUserId: userId
+    })
   }
 
   render() {
     return (
       <div className="App">
-        <NavBar />
-        <PostList />
+        <NavBar action={this.selectedUser.bind(this)}/>
+        <PostList userId={this.state.selectedUserId}/>
       </div>
     );
   }

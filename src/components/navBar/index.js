@@ -2,13 +2,22 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
-import IconButton from '@material-ui/core/IconButton';
 import Typography from '@material-ui/core/Typography';
 import InputBase from '@material-ui/core/InputBase';
 import { fade } from '@material-ui/core/styles/colorManipulator';
 import { withStyles } from '@material-ui/core/styles';
-import MenuIcon from '@material-ui/icons/Menu';
-import SearchIcon from '@material-ui/icons/Search';
+import { connect } from 'react-redux';
+
+import { findUserBySuggestion } from '../../utils';
+import Suggestions from '../suggestions';
+
+const mapStateToProps = state => ({
+    ...state
+})
+
+const mapDispatchToProps = dispatch => ({
+})
+
 
 const styles = theme => ({
     root: {
@@ -45,15 +54,6 @@ const styles = theme => ({
             width: 'auto',
         },
     },
-    searchIcon: {
-        width: theme.spacing.unit * 9,
-        height: '100%',
-        position: 'absolute',
-        pointerEvents: 'none',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
     inputRoot: {
         color: 'inherit',
         width: '100%',
@@ -75,8 +75,52 @@ const styles = theme => ({
 });
 
 class NavBar extends Component {
+
+    constructor(props) {
+        super(props);
+        this.state = {
+            usersSuggested: {},
+            search: ''
+        }
+    }
+
+    findUser(suggestion) {
+        const usersFound = findUserBySuggestion(this.props.userReducer.users, suggestion);
+
+        this.setState({
+            usersSuggested: usersFound
+        });
+    }
+
+    handleChange = name => event => {
+
+        this.setState({
+            [name]: event.target.value,
+        });
+
+        if (event.target.value !== '') {
+            this.findUser(event.target.value);
+        } else {
+            this.setState({
+                usersSuggested: {},
+            });
+            this.props.action('none')
+        }
+        
+    }
+
+    onClickSuggestion(e) {
+        this.props.action(e.target.children[1].innerHTML)
+        this.setState({
+            usersSuggested: {},
+        });
+    }
+
+
+
     render() {
         const { classes } = this.props;
+        const { usersSuggested, search } = this.state;
         return (
             <div className={classes.root}>
                 <AppBar position="static">
@@ -84,8 +128,23 @@ class NavBar extends Component {
                         <Typography className={classes.title} variant="h6" color="inherit" noWrap>
                             My Exercice
                         </Typography>
+                        <div className={classes.search}>
+                            <InputBase
+                                value={search}
+                                onChange={this.handleChange('search')}
+                                placeholder="Search an user…"
+                                classes={{
+                                    root: classes.inputRoot,
+                                    input: classes.inputInput,
+                                }}
+                            />
+                        </div>
                     </Toolbar>
                 </AppBar>
+                {
+                    usersSuggested.length > 0 &&
+                    <Suggestions users={usersSuggested} action={this.onClickSuggestion.bind(this)} />
+                }
             </div>
         );
     }
@@ -93,6 +152,7 @@ class NavBar extends Component {
 
 NavBar.propTypes = {
     classes: PropTypes.object.isRequired,
+    action: PropTypes.func.isRequired
 };
 
-export default withStyles(styles)(NavBar);
+export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(NavBar));

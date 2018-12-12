@@ -14,8 +14,8 @@ import { addCommentToPost } from '../../actions/postAction'
 import './commentInput.scss';
 
 import Suggestions from '../suggestions';
-
-
+import HashTagInput from '../hashTagInput';
+import { findUserBySuggestion } from '../../utils';
 
 const mapStateToProps = state => ({
     ...state
@@ -26,16 +26,18 @@ const mapDispatchToProps = dispatch => ({
 })
 
 class CommentInput extends Component {
-    constructor() {
-        super();
+    constructor(props) {
+        super(props);
         this.state = {
             comment: '',
             title: '',
             email: '',
+            tags: [],
             errors: {},
             suggestionWithAt: '',
             suggestion: '',
-            usersSuggested: {}
+            usersSuggested: {},
+            index: 0
         };
     }
 
@@ -61,7 +63,6 @@ class CommentInput extends Component {
         }
 
         if (Object.keys(errors).length) {
-            console.log('error');
             this.setState({
                 errors: errors
             })
@@ -77,7 +78,9 @@ class CommentInput extends Component {
                 postId: this.props.postId,
                 email: this.state.email,
                 name: this.state.title,
-                body: this.state.comment
+                body: this.state.comment,
+                tags: this.state.tags,
+                position: this.state.index
             }).then(response => {
                 this.setState({
                     email: '',
@@ -89,17 +92,23 @@ class CommentInput extends Component {
         }
     }
 
+    getHashTag(tags) {
+        this.setState({
+            tags: tags
+        });
+    }
+
     onKeyUp = () => event => {
-        const value = event.target.value;
+        const string = event.target.value;
         const regSuggestionUser = /@\w+/g;
         
-        if (regSuggestionUser.test(value)) {
-            const results = value.match(regSuggestionUser);
-            results.map(result => {
-                if (value && (value.endsWith(result) || (value.startsWith(result) && value.endsWith(result)))) {
+        if (regSuggestionUser.test(string)) {
+            const values = string.match(regSuggestionUser);
+            values.map(value => {
+                if (string && (string.endsWith(value) || (string.startsWith(value) && string.endsWith(value)))) {
                     this.setState({
-                        suggestionWithAt: result,
-                        suggestion: result.substr(1)
+                        suggestionWithAt: value,
+                        suggestion: value.substr(1)
                     }, () => {
                         this.findUser(this.state.suggestion)
                     })
@@ -110,6 +119,7 @@ class CommentInput extends Component {
                         usersSuggested: {}
                     })
                 }
+                return value;
             });
 
         } else {
@@ -122,9 +132,7 @@ class CommentInput extends Component {
     }
 
     findUser(suggestion) {
-        const usersFound = this.props.userReducer.users.filter(element => {
-            return element.username.toLowerCase().startsWith(suggestion.toLowerCase())
-        })
+        const usersFound = findUserBySuggestion(this.props.userReducer.users, suggestion);
 
         this.setState({
             usersSuggested: usersFound
@@ -132,7 +140,9 @@ class CommentInput extends Component {
     }
 
     onClickSuggestion(e) {
-        const value = this.state.comment.replace(this.state.suggestionWithAt, `[${e.target.textContent}]`)
+
+        const str = e.target.children.length ? e.target.children[0].textContent : '';
+        const value = this.state.comment.replace(this.state.suggestionWithAt, `[${str}]`)
         
         this.setState({
             comment: value,
@@ -140,6 +150,12 @@ class CommentInput extends Component {
             suggestion: '',
             usersSuggested: {}
         })
+    }
+
+    componentDidMount() {
+        this.setState({
+            index: this.props.index
+        });
     }
 
     render() {
@@ -194,6 +210,7 @@ class CommentInput extends Component {
                     suggestion !== '' && usersSuggested.length > 0 ? 
                     <Suggestions users={usersSuggested} action={this.onClickSuggestion.bind(this)}/> : ''
                 }
+                <HashTagInput action={this.getHashTag.bind(this)}/>
                 <Button variant="contained" color="primary" className="send-comment-button" onClick={this.addComment.bind(this)}>
                     Send
                     <Icon className="send-comment-button-icon">send</Icon>

@@ -49,6 +49,7 @@
         "react-dev-utils": "^6.1.1",
         "react-dom": "^16.6.3",
         "react-redux": "^6.0.0",
+        "react-tag-input": "^6.1.0",
         "react-virtual-list": "^2.3.0",
         "redux": "^4.0.1",
         "redux-logger": "^3.0.6",

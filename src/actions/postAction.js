@@ -3,10 +3,17 @@ import axios from 'axios';
 
 import { postConstants } from '../constants/postConstants';
 
-export const getPostList = (start, end) => dispatch => {
+export const getPostList = (start = 0, end = 100, filter = {}) => dispatch => {
 
-    let url = `${process.env.API_URL}/posts?_start=${start || 0}&_limit=${end || 100}`;
-    let promise = axios.get(url);
+    let url = `${process.env.API_URL}/posts?_start=${start}&_limit=${end}`;
+
+    if (filter && filter.userId && filter.userId !== 'none' ) {
+        url = `${process.env.API_URL}/posts?userId=${filter.userId}`
+    }
+    
+    let promise = axios.get(url, {
+        userId: filter.userId
+    });
 
     return dispatch({
         type: postConstants.GET_POST_LIST,
@@ -14,13 +21,11 @@ export const getPostList = (start, end) => dispatch => {
     })
 }
 
-export const getCommentByPostId = (postId) => dispatch => {
+export const getCommentByPostId = (postId, index) => dispatch => {
 
     let url = `${process.env.API_URL}/posts/${postId}/comments`;
     let promise = axios.get(url, {
-        params: {
-            postId: postId
-        }
+        position: index
     });
 
     return dispatch({
@@ -29,13 +34,10 @@ export const getCommentByPostId = (postId) => dispatch => {
     })
 }
 
-export const getUserByPost = (userId, postId) => dispatch => {
-
+export const getUserByPost = (userId, index) => dispatch => {
     let url = `${process.env.API_URL}/users/${userId}`;
     let promise = axios.get(url, {
-        params: {
-            postId: postId
-        }
+        position: index
     });
     
     return dispatch({
@@ -45,7 +47,7 @@ export const getUserByPost = (userId, postId) => dispatch => {
 }
 
 export const addCommentToPost = (data) => dispatch => {
-
+    
     let url = `${process.env.API_URL}/comments`;
     let promise = axios.post(url, data);
 

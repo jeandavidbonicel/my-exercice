@@ -22,7 +22,10 @@ class Suggestions extends Component {
                         <div className="list-users-suggestion-container">
                             <List component="nav">
                                 {this.props.users && this.props.users.map((user) => (
-                                    <ListItem key={user.id} button onClick={this.props.action}>{user.username}</ListItem>
+                                    <ListItem key={user.id} button onClick={this.props.action}>
+                                    <span className="userName">{user.username}</span>
+                                    <span className="userId">{user.id}</span>
+                                    </ListItem>
                             ))}
                             </List>
                         </div>
@@ -34,6 +37,8 @@ class Suggestions extends Component {
 }
 
 Suggestions.propTypes = {
+    action: PropTypes.func.isRequired,
+    user: PropTypes.object
 }
 
 export default Suggestions;

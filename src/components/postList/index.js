@@ -17,36 +17,57 @@ const mapStateToProps = state => ({
 })
 
 const mapDispatchToProps = dispatch => ({
-    getPostList: (start, end) => dispatch(getPostList(start, end))
+    getPostList: (start, end, filter) => dispatch(getPostList(start, end, filter))
 })
 
 class PostList extends Component {
-    constructor() {
-        super();
+    constructor(props) {
+        super(props);
+
         this.state = {
             postList: [],
             initialPost: 0,
             maxPost: 10,
             loading: true,
             loadingNextPage: false,
+            userId: ''
         };
     }
 
     static getDerivedStateFromProps(nextProps, prevState) {
+       
+        //refresh list if new comment
         if (Object.values(nextProps.postReducer.postList).length !== prevState.postList.length && prevState.postList.length > 0 ) {
             return {
                 postList: Object.values(nextProps.postReducer.postList),
             }
         }
+
+        //refresh list if user filter
+        if(nextProps.userId !== prevState.userId) {
+            return {
+                userId: nextProps.userId
+
+            }
+        }
+        return  null;
     }
 
-    componentDidMount() {
+    componentDidMount() { 
         this.fetchPostList(this.state.initialPost, this.state.maxPost);
     }
 
+    componentDidUpdate(prevProps) {
+        //fetch specific user's posts
+        if (this.props.userId !== prevProps.userId) {
+            this.fetchPostList(0, 10, {
+                userId: this.props.userId
+            });
+        }
+    }
 
-    fetchPostList(start, end) {
-        this.props.getPostList(start, end).then((response) =>{
+    fetchPostList(start, end, filter) {
+        this.props.getPostList(start, end, filter).then((response) =>{
             this.setState({
                 postList: response.value.data,
                 loading: false,
@@ -56,13 +77,15 @@ class PostList extends Component {
     }
 
     callback() {
-        this.setState({
-            initialPost: this.state.initialPost + 11,
-            loadingNextPage:true
-        }, () => {
-            this.fetchPostList(this.state.initialPost, this.state.maxPost);
-        })
-        
+        //lazyload, post 10 by 10
+        if (!this.state.userId || this.state.userId === 'none') {
+            this.setState({
+                initialPost: this.state.initialPost + 10,
+                loadingNextPage: true
+            }, () => {
+                this.fetchPostList(this.state.initialPost, this.state.maxPost);
+            })
+        }
     }
 
     render() {
@@ -74,8 +97,8 @@ class PostList extends Component {
                         {this.state.loading && <span>Loading...</span>}
                         {!this.state.loading && (
                             <div>
-                                {this.state.postList.map((post) => (
-                                    <PostItem postItem={post} key={post.id}/>
+                                {this.state.postList.map((post, index) => (
+                                    <PostItem index={index} postItem={post} key={index}/>
                                 ))}
                                 {this.state.loadingNextPage && <span>Loading...</span>}
                             </div>
@@ -88,7 +111,8 @@ class PostList extends Component {
 }
 
 PostList.propTypes = {
-    getPostList: PropTypes.func.isRequired
+    getPostList: PropTypes.func.isRequired,
+    userId: PropTypes.string
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(PostList);

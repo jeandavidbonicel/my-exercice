@@ -24,27 +24,28 @@ const mapStateToProps = state => ({
 })
 
 const mapDispatchToProps = dispatch => ({
-    getCommentByPostId: (postId) => dispatch(getCommentByPostId(postId)),
+    getCommentByPostId: (postId, index) => dispatch(getCommentByPostId(postId, index)),
 })
 
 class CommentList extends Component {
 
-    constructor() {
-        super();
+    constructor(props) {
+        super(props);
         this.state = {
             postId: null,
             user: {},
             comments: [],
             commentAdded: [],
             loadingComments: true,
-            expanded: false
+            expanded: false,
+            index: 0
         };
     }
 
     static getDerivedStateFromProps(nextProps, prevState) {
         if (nextProps.postReducer.commentAdded && nextProps.postReducer.commentAdded.postId && (nextProps.postReducer.commentAdded.postId === prevState.postId)) {
             return {
-                comments: Object.values(nextProps.postReducer.postList[prevState.postId - 1]['comments']),
+                comments: Object.values(nextProps.postReducer.postList[prevState.index]['comments']),
                 commentAdded: nextProps.postReducer.commentAdded
             };
         }
@@ -56,8 +57,8 @@ class CommentList extends Component {
         this.setState(state => ({ expanded: !state.expanded }));
     };
 
-    fetchCommentList(postId) {
-        this.props.getCommentByPostId(postId).then((response) => {
+    fetchCommentList(postId, index) {
+        this.props.getCommentByPostId(postId, index).then((response) => {
             this.setState({
                 comments: response.value.data,
                 loadingComments: false
@@ -67,16 +68,16 @@ class CommentList extends Component {
 
     componentDidMount() {
         this.setState({
+            index: this.props.index,
             postId: this.props.postId
         }, () => {
-            this.fetchCommentList(this.props.postId);
+            this.fetchCommentList(this.props.postId, this.props.index);
         })
     }
 
     render() {
 
-        const { postId, comments, loadingComments, expanded } = this.state;
-
+        const { postId, comments, loadingComments, expanded, index } = this.state;
         return (
             <CardContent>
                 <CardActions onClick={this.handleExpandClick} className="card-actions" disableActionSpacing>
@@ -98,10 +99,10 @@ class CommentList extends Component {
                             <div>
                                 <div className="comments-content">
                                     {comments.map((comment) => (
-                                        <CommentItem name={comment.name} body={comment.body} key={comment.id} />
+                                        <CommentItem index={index} tags={comment.tags} name={comment.name} body={comment.body} key={comment.id} />
                                     ))}
                                 </div>
-                                <CommentInput postId={postId} />
+                                <CommentInput index={index} postId={postId} />
                             </div>
                         )}
                     </CardContent>

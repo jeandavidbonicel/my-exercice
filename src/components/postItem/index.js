@@ -21,12 +21,12 @@ const mapStateToProps = state => ({
 })
 
 const mapDispatchToProps = dispatch => ({
-    getUserByPost: (userId, postId) => dispatch(getUserByPost(userId, postId)),
+    getUserByPost: (userId, index) => dispatch(getUserByPost(userId, index)),
 })
 
 class PostItem extends Component {
-    constructor() {
-        super();
+    constructor(props) {
+        super(props);
         this.state = {
             user: {},
             comments: {},
@@ -40,7 +40,7 @@ class PostItem extends Component {
     };
 
     fetchPostItem() {
-        this.props.getUserByPost(this.props.postItem.userId, this.props.postItem.id).then((response) => {
+        this.props.getUserByPost(this.props.postItem.userId, this.props.index).then((response) => {
             this.setState({
                 user: response.value.data,
                 loadingUser: false
@@ -72,14 +72,15 @@ class PostItem extends Component {
                         {this.props.postItem.body}
                     </Typography>
                 </CardContent>
-                <CommentList postId={this.props.postItem.id}/>
+                <CommentList index={this.props.index} postId={this.props.postItem.id}/>
             </Card>
         );
     }
 }
 
 PostItem.propTypes = {
-    getUserByPost: PropTypes.func.isRequired
+    getUserByPost: PropTypes.func.isRequired,
+    index: PropTypes.number
 }
 
 
