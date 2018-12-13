@@ -9,13 +9,13 @@ import Icon from '@material-ui/core/Icon';
 import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography';
 
-import { addCommentToPost } from '../../actions/postAction'
+import { addCommentToPost } from '../../../actions/postAction'
 
 import './commentInput.scss';
 
-import Suggestions from '../suggestions';
-import HashTagInput from '../hashTagInput';
-import { findUserBySuggestion } from '../../utils';
+import Suggestions from '../../commons/suggestions';
+import HashTagInput from '../../commons/hashTagInput';
+import { findUserBySuggestion } from '../../../utils';
 
 const mapStateToProps = state => ({
     ...state

@@ -15,4 +15,15 @@
     .expand-open {
         transform: rotate(180deg),
     }
+    .card-content {
+        display: flex;
+        justify-content: center;
+        align-content: center;
+        .card-content-row {
+            width: 50%;
+            align-items: center;
+            display: flex;
+            justify-content: center;
+        }
+    }
 }

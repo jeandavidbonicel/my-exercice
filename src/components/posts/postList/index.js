@@ -6,19 +6,20 @@ import { connect } from 'react-redux';
 import { PropTypes } from 'prop-types';
 
 import Grid from '@material-ui/core/Grid';
-import BottomScrollListener from 'react-bottom-scroll-listener'
-import { getPostList } from '../../actions/postAction'
+import BottomScrollListener from 'react-bottom-scroll-listener';
+import { getPostList } from '../../../actions/postAction';
 import PostItem from '../postItem';
+import Loader from '../../commons/loader';
 
 import './postList.scss';
 
 const mapStateToProps = state => ({
     ...state
-})
+});
 
 const mapDispatchToProps = dispatch => ({
     getPostList: (start, end, filter) => dispatch(getPostList(start, end, filter))
-})
+});
 
 class PostList extends Component {
     constructor(props) {
@@ -35,9 +36,9 @@ class PostList extends Component {
     }
 
     static getDerivedStateFromProps(nextProps, prevState) {
-       
-        //refresh list if new comment
-        if (Object.values(nextProps.postReducer.postList).length !== prevState.postList.length && prevState.postList.length > 0 ) {
+
+        //refresh if list changed
+        if (Object.values(nextProps.postReducer.postList) !== prevState.postList && prevState.postList.length > 0 ) {
             return {
                 postList: Object.values(nextProps.postReducer.postList),
             }
@@ -47,7 +48,6 @@ class PostList extends Component {
         if(nextProps.userId !== prevState.userId) {
             return {
                 userId: nextProps.userId
-
             }
         }
         return  null;
@@ -58,8 +58,11 @@ class PostList extends Component {
     }
 
     componentDidUpdate(prevProps) {
-        //fetch specific user's posts
+        //fetch specific user's posts , reset postList
         if (this.props.userId !== prevProps.userId) {
+            this.setState({
+                postList: []
+            });
             this.fetchPostList(0, 10, {
                 userId: this.props.userId
             });
@@ -72,8 +75,8 @@ class PostList extends Component {
                 postList: response.value.data,
                 loading: false,
                 loadingNextPage: false,
-            })
-        })
+            });
+        });
     }
 
     callback() {
@@ -89,18 +92,20 @@ class PostList extends Component {
     }
 
     render() {
+
+        const { loading, postList, loadingNextPage } = this.state;
         return (
             <div className="post-list-container">
                 <Grid container spacing={24}>
                     <BottomScrollListener onBottom={this.callback.bind(this)} />
                     <Grid item xs={12}>
-                        {this.state.loading && <span>Loading...</span>}
-                        {!this.state.loading && (
+                        {loading && <Loader/>}
+                        {!loading && (
                             <div>
-                                {this.state.postList.map((post, index) => (
+                                {postList.map((post, index) => (
                                     <PostItem index={index} postItem={post} key={index}/>
                                 ))}
-                                {this.state.loadingNextPage && <span>Loading...</span>}
+                                {loadingNextPage && <Loader />}
                             </div>
                         )}
                     </Grid>
@@ -113,6 +118,6 @@ class PostList extends Component {
 PostList.propTypes = {
     getPostList: PropTypes.func.isRequired,
     userId: PropTypes.string
-}
+};
 
 export default connect(mapStateToProps, mapDispatchToProps)(PostList);

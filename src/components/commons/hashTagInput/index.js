@@ -19,7 +19,7 @@ class HashTagInput extends Component {
         this.state = {
             tags: [
                 { id: "Thailand", text: "Thailand" },
-                { id: "India", text: "India" }
+                { id: "Austria", text: "Austria" }
             ],
             suggestions: HashTagSuggestions
         };
@@ -31,17 +31,21 @@ class HashTagInput extends Component {
 
     handleDelete(i) {
         const { tags } = this.state;
+        const newTags = tags.filter((tag, index) => index !== i);
         this.setState({
-            tags: tags.filter((tag, index) => index !== i),
+            tags: newTags,
         });
+
+        this.props.action(newTags);
     }
 
     handleAddition(tag) {
+        const newTags = [...this.state.tags, tag];
         this.setState(state => ({ 
-            tags: [...state.tags, tag]
+            tags: newTags
          }));
 
-        this.props.action([...this.state.tags, tag]);
+        this.props.action(newTags);
     }
 
     handleDrag(tag, currPos, newPos) {

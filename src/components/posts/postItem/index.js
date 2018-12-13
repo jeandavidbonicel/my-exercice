@@ -1,14 +1,11 @@
-/*
- src/App.js
-*/
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { PropTypes } from 'prop-types';
 
 import './postItem.scss';
-import CommentList from '../commentList';
-
-import { getUserByPost } from '../../actions/postAction'
+import CommentList from '../../comments/commentList';
+import SimplePieChart from '../../commons/charts/pieChart';
+import { getUserByPost } from '../../../actions/postAction';
 
 import Card from '@material-ui/core/Card';
 import CardHeader from '@material-ui/core/CardHeader';
@@ -31,8 +28,19 @@ class PostItem extends Component {
             user: {},
             comments: {},
             loadingUser: true,
-            expanded: false
+            expanded: false,
+            tags: []
         };
+    }
+
+    static getDerivedStateFromProps(nextProps, prevState) {
+
+        const post = nextProps.postReducer.postList[nextProps.index];
+        if (post && post['tags'] && post['tags'] !== prevState.tags) {
+            return {
+                tags: post['tags']
+            }
+        }
     }
 
     handleExpandClick = () => {
@@ -48,12 +56,13 @@ class PostItem extends Component {
         });
     }
     
-    componentDidMount() {
+    componentDidMount() {  
         this.fetchPostItem();
     }
 
     render() {
-       const { user, loadingUser} = this.state;
+       const { user, loadingUser, tags} = this.state;
+       const { postItem } =this.props;
 
         return (
             <Card className="postItem">
@@ -64,13 +73,20 @@ class PostItem extends Component {
                             {!loadingUser ? user.username.substring(0,1).toUpperCase(): ''}
                         </Avatar>
                     }
-                    title={this.props.postItem.title}
+                    title={postItem.title}
                     subheader={user.username}
                 />
                 <CardContent>
-                    <Typography component="p">
-                        {this.props.postItem.body}
-                    </Typography>
+                    <div className="card-content">
+                    <div className="card-content-row">
+                        <Typography component="p">
+                                {postItem.body}
+                        </Typography>
+                    </div>    
+                    <div className="card-content-row">
+                            <SimplePieChart data={tags}/>
+                    </div>
+                    </div>
                 </CardContent>
                 <CommentList index={this.props.index} postId={this.props.postItem.id}/>
             </Card>

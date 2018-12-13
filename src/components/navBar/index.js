@@ -9,7 +9,7 @@ import { withStyles } from '@material-ui/core/styles';
 import { connect } from 'react-redux';
 
 import { findUserBySuggestion } from '../../utils';
-import Suggestions from '../suggestions';
+import Suggestions from '../commons/suggestions';
 
 const mapStateToProps = state => ({
     ...state
@@ -110,10 +110,12 @@ class NavBar extends Component {
     }
 
     onClickSuggestion(e) {
-        this.props.action(e.target.children[1].innerHTML)
-        this.setState({
-            usersSuggested: {},
-        });
+        if (e.target.children && e.target.children[1]) {
+            this.props.action(e.target.children[1].innerHTML)
+            this.setState({
+                usersSuggested: {},
+            });
+        }
     }
 
 

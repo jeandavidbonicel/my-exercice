@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import './App.scss';
 
-import PostList from './components/postList';
+import PostList from './components/posts/postList';
 import NavBar from './components/navBar';
 
 import { getUsers } from './actions/userAction'

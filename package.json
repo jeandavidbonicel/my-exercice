@@ -51,6 +51,7 @@
         "react-redux": "^6.0.0",
         "react-tag-input": "^6.1.0",
         "react-virtual-list": "^2.3.0",
+        "recharts": "^1.4.1",
         "redux": "^4.0.1",
         "redux-logger": "^3.0.6",
         "redux-promise-middleware": "^5.1.1",

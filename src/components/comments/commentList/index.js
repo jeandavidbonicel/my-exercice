@@ -9,8 +9,9 @@ import './commentList.scss';
 
 import CommentItem from '../commentItem';
 import CommentInput from '../commentInput';
+import Loader from '../../commons/loader';
 
-import { getCommentByPostId } from '../../actions/postAction'
+import { getCommentByPostId } from '../../../actions/postAction'
 
 import CardContent from '@material-ui/core/CardContent';
 import CardActions from '@material-ui/core/CardActions';
@@ -43,9 +44,10 @@ class CommentList extends Component {
     }
 
     static getDerivedStateFromProps(nextProps, prevState) {
+        let postList = nextProps.postReducer.postList[prevState.index];
         if (nextProps.postReducer.commentAdded && nextProps.postReducer.commentAdded.postId && (nextProps.postReducer.commentAdded.postId === prevState.postId)) {
             return {
-                comments: Object.values(nextProps.postReducer.postList[prevState.index]['comments']),
+                comments: postList['comments'] ? Object.values(postList['comments']) : [],
                 commentAdded: nextProps.postReducer.commentAdded
             };
         }
@@ -94,7 +96,7 @@ class CommentList extends Component {
                 </CardActions>
                 <Collapse in={expanded} timeout="auto" unmountOnExit>
                     <CardContent>
-                        {loadingComments && <span>Loading...</span>}
+                        {loadingComments && <Loader />}
                         {!loadingComments && (
                             <div>
                                 <div className="comments-content">
