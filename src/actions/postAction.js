@@ -49,7 +49,7 @@ export const getUserByPost = (userId, index) => dispatch => {
 export const addCommentToPost = (data) => dispatch => {
     
     let url = `${process.env.API_URL}/comments`;
-    let promise = axios.post(url, data);
+    let promise = axios.post(url, data, { headers: { 'Access-Control-Allow-Origin': '*'} } );
 
     return dispatch({
         type: postConstants.ADD_COMMENT_TO_POST,
