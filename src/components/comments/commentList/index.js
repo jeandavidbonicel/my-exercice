@@ -41,6 +41,8 @@ class CommentList extends Component {
             expanded: false,
             index: 0
         };
+
+        this.messagesEnd = null;
     }
 
     static getDerivedStateFromProps(nextProps, prevState) {
@@ -66,6 +68,32 @@ class CommentList extends Component {
                 loadingComments: false
             })
         });
+
+         
+    }
+
+    scrollToBottom(el) {
+        setTimeout(() => {
+            el.scrollIntoView({ behavior: "smooth" });
+        }, 0);
+    }
+
+    componentDidUpdate(prevProps, prevState) {
+
+        //scroll to bottom for the list of comments
+        //TODO:inProgress
+        // const { commentAdded } = this.state;
+        // if (commentAdded && commentAdded.postId && commentAdded.postId.toString() === this.messagesEnd.attributes['data']["value"]) {
+        //     this.scrollToBottom(this.messagesEnd)
+        //     return null
+        // }
+
+        // if (this.state.expanded) {
+        //     if (this.messagesEnd && prevProps.postId && (this.messagesEnd.attributes['data']["value"] === prevProps.postId.toString())) {
+        //         this.scrollToBottom(this.messagesEnd)
+        //         return null;
+        //     }
+        // }
     }
 
     componentDidMount() {
@@ -99,10 +127,11 @@ class CommentList extends Component {
                         {loadingComments && <Loader />}
                         {!loadingComments && (
                             <div>
-                                <div className="comments-content">
+                                <div ref={el => { this.content = el; }} className="comments-content">
                                     {comments.map((comment) => (
                                         <CommentItem index={index} tags={comment.tags} name={comment.name} body={comment.body} key={comment.id} />
                                     ))}
+                                    <div data={postId} ref={(el) => { this.messagesEnd = el; }}/>
                                 </div>
                                 <CommentInput index={index} postId={postId} />
                             </div>

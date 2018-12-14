@@ -25,6 +25,8 @@ class SimplePieChart extends Component {
                 empty: false,
             };
         }
+
+        return null;
     }
 
     componentDidMount() {

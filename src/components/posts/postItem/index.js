@@ -41,6 +41,8 @@ class PostItem extends Component {
                 tags: post['tags']
             }
         }
+
+        return null
     }
 
     handleExpandClick = () => {

@@ -1,3 +1,4 @@
-.commentList {
-    display: flex;
+.comments-content {
+    overflow-y: auto;
+    max-height: 300px;
 }

@@ -99,7 +99,7 @@ class PostList extends Component {
                 <Grid container spacing={24}>
                     <BottomScrollListener onBottom={this.callback.bind(this)} />
                     <Grid item xs={12}>
-                        {loading && <Loader/>}
+                        {loading && <Loader position="center"/>}
                         {!loading && (
                             <div>
                                 {postList.map((post, index) => (
