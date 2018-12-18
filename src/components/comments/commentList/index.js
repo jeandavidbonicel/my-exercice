@@ -82,11 +82,6 @@ class CommentList extends Component {
 
         //scroll to bottom for the list of comments
         //TODO:inProgress
-        // const { commentAdded } = this.state;
-        // if (commentAdded && commentAdded.postId && commentAdded.postId.toString() === this.messagesEnd.attributes['data']["value"]) {
-        //     this.scrollToBottom(this.messagesEnd)
-        //     return null
-        // }
 
         // if (this.state.expanded) {
         //     if (this.messagesEnd && prevProps.postId && (this.messagesEnd.attributes['data']["value"] === prevProps.postId.toString())) {

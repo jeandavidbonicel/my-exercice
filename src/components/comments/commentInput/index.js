@@ -98,42 +98,44 @@ class CommentInput extends Component {
         });
     }
 
+    suggestionsUser(suggestions, value) {
+        return suggestions.map(suggestion => {
+            if (value && (value.endsWith(suggestion) || (value.startsWith(suggestion) && value.endsWith(suggestion)))) {
+                this.setState({
+                    suggestionWithAt: suggestion,
+                    suggestion: suggestion.substr(1)
+                }, () => {
+                    this.findUser(this.state.suggestion)
+                })
+            } else {
+                this.resetSuggestionUser();
+            }
+        });
+    }
+
+    resetSuggestionUser(string = '') {
+        this.setState({
+            comment: string ? string : this.state.comment,
+            suggestionWithAt: '',
+            suggestion: '',
+            usersSuggested: {}
+        });
+    }
+
     onKeyUp = () => event => {
-        const string = event.target.value;
+        const value = event.target.value;
         const regSuggestionUser = /@\w+/g;
         
-        if (regSuggestionUser.test(string)) {
-            const values = string.match(regSuggestionUser);
-            values.map(value => {
-                if (string && (string.endsWith(value) || (string.startsWith(value) && string.endsWith(value)))) {
-                    this.setState({
-                        suggestionWithAt: value,
-                        suggestion: value.substr(1)
-                    }, () => {
-                        this.findUser(this.state.suggestion)
-                    })
-                } else {
-                    this.setState({
-                        suggestionWithAt: '',
-                        suggestion: '',
-                        usersSuggested: {}
-                    })
-                }
-                return value;
-            });
-
+        if (regSuggestionUser.test(value)) {
+            this.suggestionsUser(value.match(regSuggestionUser), value);
         } else {
-            this.setState({
-                suggestionWithAt: '',
-                suggestion: '',
-                usersSuggested: {}
-            })
+            this.resetSuggestionUser();
         }
     }
 
     findUser(suggestion) {
         const usersFound = findUserBySuggestion(this.props.userReducer.users, suggestion);
-
+       
         this.setState({
             usersSuggested: usersFound
         });
@@ -143,13 +145,8 @@ class CommentInput extends Component {
 
         const str = e.target.children.length ? e.target.children[0].textContent : '';
         const value = this.state.comment.replace(this.state.suggestionWithAt, `[${str}]`)
-        
-        this.setState({
-            comment: value,
-            suggestionWithAt: '',
-            suggestion: '',
-            usersSuggested: {}
-        })
+
+        this.resetSuggestionUser(value);
     }
 
     componentDidMount() {
